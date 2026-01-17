@@ -11,3 +11,7 @@ This application is built using the **Vite + React** ecosystem to ensure high pe
 We utilize a singleton pattern in `src/api.js` to manage Firebase REST endpoints.
 - **Authentication**: Bearer token simulation using query parameters.
 - **Error Handling**: Centralized try/catch blocks with user-facing alerts.
+
+## Security Protocols
+- **Data Protection**: SSL/TLS encryption for all data in transit.
+- **Access Control**: Role-based views separated by URL routing and local auth gates.
