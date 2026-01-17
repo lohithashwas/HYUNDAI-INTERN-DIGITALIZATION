@@ -15,3 +15,7 @@ We utilize a singleton pattern in `src/api.js` to manage Firebase REST endpoints
 ## Security Protocols
 - **Data Protection**: SSL/TLS encryption for all data in transit.
 - **Access Control**: Role-based views separated by URL routing and local auth gates.
+
+## Deployment Strategy
+- **CI/CD**: Manual trigger via Admin Console.
+- **Environment**: Staging (Localhost) -> Production (Vercel/Firebase Hosting).
