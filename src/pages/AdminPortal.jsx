@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../api';
 import { generatePDF, exportToExcel } from '../utils/exportUtils';
 import { useNavigate } from 'react-router-dom';
-import { Filter, RefreshCcw, FileText } from 'lucide-react';
+import { Filter, RefreshCcw, FileText, BarChart2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
 
 const AdminPortal = () => {
     const { t, language } = useLanguage();
     const [checklists, setChecklists] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filterDate, setFilterDate] = useState('');
+    const [showAnalytics, setShowAnalytics] = useState(false);
     const navigate = useNavigate();
 
     const localT = {
@@ -35,7 +37,8 @@ const AdminPortal = () => {
             deleted: "Deleted successfully.",
             forkliftDeleted: "Forklift checklist deleted successfully.",
             incorrectPwd: "Incorrect Password!",
-            audio: "Audio Note"
+            audio: "Audio Note",
+            analytics: "Analytics"
         },
         ta: {
             dashboard: "நிர்வாகக் குழு",
@@ -59,7 +62,8 @@ const AdminPortal = () => {
             deleted: "வெற்றிகரமாக நீக்கப்பட்டது.",
             forkliftDeleted: "ஃபோர்க்லிஃப்ட் பட்டியல் நீக்கப்பட்டது.",
             incorrectPwd: "தவறான கடவுச்சொல்!",
-            audio: "ஆடியோ குறிப்பு"
+            audio: "ஆடியோ குறிப்பு",
+            analytics: "பகுப்பாய்வு"
         },
         hi: {
             dashboard: "एडमिन डैशबोर्ड",
@@ -83,7 +87,8 @@ const AdminPortal = () => {
             deleted: "सफलतापूर्वक हटा दिया गया।",
             forkliftDeleted: "फोर्कलिफ्ट चेकलिस्ट हटा दी गई।",
             incorrectPwd: "गलत पासवर्ड!",
-            audio: "ऑडियो नोट"
+            audio: "ऑडियो नोट",
+            analytics: "एनालिटिक्स"
         }
     };
     const lt = (key) => localT[language]?.[key] || localT['en'][key];
@@ -160,8 +165,22 @@ const AdminPortal = () => {
                     <h1>{lt('dashboard')}</h1>
                     <span style={{ opacity: 0.8 }}>{lt('reports')}</span>
                 </div>
-                <button className="btn btn-secondary" onClick={() => navigate('/')}>{t('logout')}</button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                        className="btn"
+                        onClick={() => setShowAnalytics(!showAnalytics)}
+                        style={{ background: showAnalytics ? '#e94560' : 'white', color: showAnalytics ? 'white' : '#002c5f' }}
+                    >
+                        <BarChart2 size={18} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+                        {lt('analytics')}
+                    </button>
+                    <button className="btn btn-secondary" onClick={() => navigate('/')}>{t('logout')}</button>
+                </div>
             </div>
+
+            {showAnalytics && (
+                <AnalyticsDashboard checklists={checklists} />
+            )}
 
             <div className="card toolbar" style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px' }}>
