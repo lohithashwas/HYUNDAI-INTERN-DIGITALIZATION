@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Truck, LogIn } from 'lucide-react';
+import { Shield, LogIn, Globe } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import reachStackerImg from '../assets/reach_stacker.png';
+import forkliftImg from '../assets/forklift.png';
 
 const Login = () => {
     const navigate = useNavigate();
+    const { t, setLanguage, language } = useLanguage();
     const [isAdminMode, setIsAdminMode] = useState(false);
     const [password, setPassword] = useState('');
 
@@ -12,9 +16,27 @@ const Login = () => {
         if (password === 'admin' || password === '1234') {
             navigate('/admin');
         } else {
-            alert('Incorrect Password (Try "admin")');
+            alert(t('incorrectPwd') + ' (Try "admin")');
         }
     };
+
+    const LangBtn = ({ code, label }) => (
+        <button
+            onClick={() => setLanguage(code)}
+            style={{
+                background: language === code ? '#002c5f' : 'white',
+                color: language === code ? 'white' : '#002c5f',
+                border: '1px solid #002c5f',
+                padding: '5px 15px',
+                borderRadius: '20px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+            }}
+        >
+            {label}
+        </button>
+    );
 
     return (
         <div className="container" style={{
@@ -23,8 +45,16 @@ const Login = () => {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            background: 'linear-gradient(135deg, #f4f7f6 0%, #e0e4e6 100%)'
+            background: 'linear-gradient(135deg, #f4f7f6 0%, #e0e4e6 100%)',
+            position: 'relative'
         }}>
+
+            <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <Globe size={20} color="#002c5f" />
+                <LangBtn code="en" label="English" />
+                <LangBtn code="ta" label="தமிழ்" />
+                <LangBtn code="hi" label="हिन्दी" />
+            </div>
 
             {!isAdminMode ? (
                 <>
@@ -33,7 +63,7 @@ const Login = () => {
                             <span style={{ color: '#002c5f' }}>HYUNDAI</span>
                         </h1>
                         <p style={{ fontSize: '1.2rem', color: '#666', letterSpacing: '2px', textTransform: 'uppercase' }}>
-                            Reach Stacker Digital Checklist
+                            {t('dailyChecklist')}
                         </p>
                     </div>
 
@@ -53,12 +83,36 @@ const Login = () => {
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                         >
                             <div style={{ padding: '40px 20px' }}>
-                                <div style={{ background: '#e6eff8', width: '100px', height: '100px', borderRadius: '50%', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Truck size={48} color="#002c5f" />
+                                <div style={{ height: '120px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src={reachStackerImg} alt="Reach Stacker" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
                                 </div>
-                                <h2 style={{ marginBottom: '10px' }}>Sattva Portal</h2>
-                                <p style={{ color: '#666', marginBottom: '25px' }}>Daily checklist entry for operators.</p>
-                                <button className="btn btn-primary" style={{ width: '100%' }}>Enter as Operator</button>
+                                <h2 style={{ marginBottom: '10px' }}>{t('sattvaPortal')}</h2>
+                                <p style={{ color: '#666', marginBottom: '25px' }}>{t('sattvaDesc')}</p>
+                                <button className="btn btn-primary" style={{ width: '100%' }}>{t('operatorEntry')}</button>
+                            </div>
+                        </div>
+
+                        {/* Forklift Card */}
+                        <div
+                            className="card login-option"
+                            onClick={() => navigate('/forklift')}
+                            style={{
+                                width: '320px',
+                                cursor: 'pointer',
+                                textAlign: 'center',
+                                transition: 'all 0.3s ease',
+                                borderTop: '6px solid #e94560'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                        >
+                            <div style={{ padding: '40px 20px' }}>
+                                <div style={{ height: '120px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src={forkliftImg} alt="Forklift" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                                </div>
+                                <h2 style={{ marginBottom: '10px' }}>{t('forkliftPortal')}</h2>
+                                <p style={{ color: '#666', marginBottom: '25px' }}>{t('forkliftDesc')}</p>
+                                <button className="btn btn-primary" style={{ width: '100%', background: '#e94560', borderColor: '#e94560' }}>{t('operatorEntry')}</button>
                             </div>
                         </div>
 
@@ -80,19 +134,19 @@ const Login = () => {
                                 <div style={{ background: '#eeeeee', width: '100px', height: '100px', borderRadius: '50%', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <Shield size={48} color="#333" />
                                 </div>
-                                <h2 style={{ marginBottom: '10px', color: '#333' }}>Admin Portal</h2>
-                                <p style={{ color: '#666', marginBottom: '25px' }}>Report management and analytics.</p>
-                                <button className="btn btn-secondary" style={{ width: '100%' }}>Admin Login</button>
+                                <h2 style={{ marginBottom: '10px', color: '#333' }}>{t('adminPortal')}</h2>
+                                <p style={{ color: '#666', marginBottom: '25px' }}>{t('adminDesc')}</p>
+                                <button className="btn btn-secondary" style={{ width: '100%' }}>{t('adminLogin')}</button>
                             </div>
                         </div>
                     </div>
                 </>
             ) : (
                 <div className="card" style={{ width: '400px', padding: '40px' }}>
-                    <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Admin Authentication</h2>
+                    <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>{t('adminAuth')}</h2>
                     <form onSubmit={handleAdminLogin}>
                         <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Password</label>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>{t('password')}</label>
                             <input
                                 type="password"
                                 value={password}
@@ -108,8 +162,8 @@ const Login = () => {
                             />
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                            <button type="button" className="btn btn-secondary" onClick={() => setIsAdminMode(false)}>Cancel</button>
-                            <button type="submit" className="btn btn-primary"><LogIn size={16} style={{ marginRight: '5px', display: 'inline' }} /> Login</button>
+                            <button type="button" className="btn btn-secondary" onClick={() => setIsAdminMode(false)}>{t('cancel')}</button>
+                            <button type="submit" className="btn btn-primary"><LogIn size={16} style={{ marginRight: '5px', display: 'inline' }} /> {t('login')}</button>
                         </div>
                     </form>
                 </div>

@@ -1,38 +1,49 @@
 import React, { useState } from 'react';
-import { CHECKLIST_SCHEMA } from '../data/checklistSchema';
+import { FORKLIFT_CHECKLIST_SCHEMA, FORKLIFT_INFO } from '../data/forkliftChecklistSchema';
 import { AlertCircle, CheckCircle, Volume2 } from 'lucide-react';
 import SignaturePad from './SignaturePad';
 import { useLanguage } from '../context/LanguageContext';
 import AudioRemarksInput from './AudioRemarksInput';
 
-const ChecklistForm = ({ onSubmit, initialData }) => {
+const ForkliftChecklistForm = ({ onSubmit, initialData }) => {
     const { t, language } = useLanguage();
     const [formData, setFormData] = useState({});
-    const [signature, setSignature] = useState(null);
+    const [operatorSignature, setOperatorSignature] = useState(null);
+    const [supervisorSignature, setSupervisorSignature] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [reachStackerId, setReachStackerId] = useState('');
+    const [idNumber, setIdNumber] = useState('');
+    const [forkliftId, setForkliftId] = useState('');
 
     const localT = {
         en: {
             company: "Company",
-            equipment: "Equipment Type",
-            rsId: "Reach Stacker No.",
-            shop: "Shop Code",
-            contract: "Contract Code"
+            equipmentType: "Equipment Type",
+            forkliftId: "Forklift ID No.",
+            idNumber: "ID Number",
+            opSig: "Fork Lift Operator",
+            supSig: "TVS Supervisor",
+            optional: "(Optional)",
+            checkPoints: "Check Points"
         },
         ta: {
             company: "நிறுவனம்",
-            equipment: "சாதனம் வகை",
-            rsId: "ரீச் ஸ்டேக்கர் எண்",
-            shop: "கடை எண்",
-            contract: "ஒப்பந்த எண்"
+            equipmentType: "சாதனம் வகை",
+            forkliftId: "ஃபோர்க்லிஃப்ட் எண்",
+            idNumber: "அடையாள எண்",
+            opSig: "ஃபோர்க்லிஃப்ட் ஆபரேட்டர்",
+            supSig: "TVS மேற்பார்வையாளர்",
+            optional: "(விருப்பம்)",
+            checkPoints: "சரிபார்ப்பு புள்ளிகள்"
         },
         hi: {
             company: "कंपनी",
-            equipment: "उपकरण प्रकार",
-            rsId: "रीच स्टेकर नंबर",
-            shop: "शॉप कोड",
-            contract: "अनुबंध कोड"
+            equipmentType: "उपकरण प्रकार",
+            forkliftId: "फोर्कलिफ्ट आईडी",
+            idNumber: "आईडी नंबर",
+            opSig: "फोर्कलिफ्ट ऑपरेटर",
+            supSig: "TVS पर्यवेक्षक",
+            optional: "(वैकल्पिक)",
+            checkPoints: "जाँच बिंदु"
         }
     };
     const lt = (key) => localT[language]?.[key] || localT['en'][key];
@@ -74,7 +85,7 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
 
     const speak = (text) => {
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); // Stop previous
+            window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
 
             // Get all available voices
@@ -103,21 +114,20 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validate Reach Stacker ID
-        if (!reachStackerId.trim()) {
-            alert("Please enter the " + lt('rsId'));
+        // Final check on signature from state
+        if (!operatorSignature) {
+            alert(t('signatureReq') + " (" + lt('opSig') + ")");
             return;
         }
 
-        // Final check on signature from state
-        if (!signature) {
-            alert(t('signatureReq'));
+        if (!forkliftId.trim()) {
+            alert("Please enter the " + lt('forkliftId'));
             return;
         }
 
         // Validation: Check if all items are filled
         let allFilled = true;
-        CHECKLIST_SCHEMA.forEach(section => {
+        FORKLIFT_CHECKLIST_SCHEMA.forEach(section => {
             section.items.forEach(item => {
                 if (!formData[item.id]?.status) {
                     allFilled = false;
@@ -130,40 +140,36 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
         }
 
         setLoading(true);
-        // Add equipment info and ID to payload
         onSubmit({
             items: formData,
-            signature,
-            reachStackerId,
-            equipmentInfo: {
-                company: "Hyundai",
-                equipmentType: "Reach Stacker",
-                shopCode: "HMI",
-                contractCode: "C1Y"
-            }
+            operatorSignature,
+            supervisorSignature,
+            idNumber,
+            forkliftId,
+            equipmentInfo: FORKLIFT_INFO
         });
     };
 
     return (
         <form onSubmit={handleSubmit} className="checklist-form">
-            {/* Header Info - Added to match Forklift Style */}
-            <div className="card" style={{ marginBottom: '20px', background: 'linear-gradient(135deg, #002c5f 0%, #004e92 100%)', color: 'white' }}>
+            {/* Header Info */}
+            <div className="card" style={{ marginBottom: '20px', background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', color: 'white' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
                     <div>
                         <label style={{ opacity: 0.7, fontSize: '0.85rem', display: 'block', marginBottom: '5px' }}>{lt('company')}</label>
-                        <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Hyundai</span>
+                        <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{FORKLIFT_INFO.company}</span>
                     </div>
                     <div>
-                        <label style={{ opacity: 0.7, fontSize: '0.85rem', display: 'block', marginBottom: '5px' }}>{lt('equipment')}</label>
-                        <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Reach Stacker</span>
+                        <label style={{ opacity: 0.7, fontSize: '0.85rem', display: 'block', marginBottom: '5px' }}>{lt('equipmentType')}</label>
+                        <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{FORKLIFT_INFO.equipmentType}</span>
                     </div>
                     <div>
-                        <label style={{ opacity: 0.7, fontSize: '0.85rem', display: 'block', marginBottom: '5px' }}>{lt('rsId')}</label>
+                        <label style={{ opacity: 0.7, fontSize: '0.85rem', display: 'block', marginBottom: '5px' }}>{lt('forkliftId')}</label>
                         <input
                             type="text"
-                            value={reachStackerId}
-                            onChange={(e) => setReachStackerId(e.target.value)}
-                            placeholder="e.g., RS-01"
+                            value={forkliftId}
+                            onChange={(e) => setForkliftId(e.target.value)}
+                            placeholder="e.g., FD2N80"
                             style={{
                                 padding: '8px 12px',
                                 borderRadius: '4px',
@@ -178,19 +184,20 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
                 </div>
             </div>
 
-            {CHECKLIST_SCHEMA.map((section, idx) => (
+            {FORKLIFT_CHECKLIST_SCHEMA.map((section, idx) => (
                 <div key={idx} className="card" style={{ padding: '0', overflow: 'hidden', marginBottom: '30px' }}>
-                    <div style={{ background: '#002c5f', color: 'white', padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h3 style={{ color: 'white', fontSize: '1.1rem' }}>{idx + 1}. {getSectionTitle(section)}</h3>
+                    <div style={{ background: 'linear-gradient(90deg, #0f3460 0%, #16213e 100%)', color: 'white', padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h3 style={{ color: 'white', fontSize: '1.1rem', margin: 0 }}>{idx + 1}. {getSectionTitle(section)}</h3>
                     </div>
 
                     <div className="table-responsive" style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                             <thead>
                                 <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #ddd', fontSize: '0.9rem', color: '#666' }}>
-                                    <th style={{ padding: '12px', textAlign: 'left', width: '40%' }}>{t('activity')}</th>
+                                    <th style={{ padding: '12px', textAlign: 'center', width: '5%' }}>S.No</th>
+                                    <th style={{ padding: '12px', textAlign: 'left', width: '45%' }}>{lt('checkPoints')}</th>
                                     <th style={{ padding: '12px', textAlign: 'center', width: '25%' }}>{t('status')}</th>
-                                    <th style={{ padding: '12px', textAlign: 'left', width: '35%' }}>{t('remarks')}</th>
+                                    <th style={{ padding: '12px', textAlign: 'left', width: '25%' }}>{t('remarks')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -200,6 +207,9 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
 
                                     return (
                                         <tr key={item.id} style={{ borderBottom: '1px solid #eee' }}>
+                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 600, color: '#666' }}>
+                                                {itemIdx + 1}
+                                            </td>
                                             <td style={{ padding: '12px' }}>
                                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                                                     <div style={{ fontWeight: 500, fontSize: '0.95rem' }}>
@@ -208,7 +218,7 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
                                                     <button
                                                         type="button"
                                                         onClick={() => speak(currentLabel)}
-                                                        style={{ background: 'none', padding: '4px', color: '#0056b3', opacity: 0.7, border: 'none', cursor: 'pointer' }}
+                                                        style={{ background: 'none', padding: '4px', color: '#0f3460', opacity: 0.7, border: 'none', cursor: 'pointer' }}
                                                         title="Read Aloud"
                                                     >
                                                         <Volume2 size={16} />
@@ -216,7 +226,7 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
                                                 </div>
                                             </td>
                                             <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
                                                     <label className={`status-btn ${itemState.status === 'OK' ? 'active-ok' : ''}`}>
                                                         <input
                                                             type="radio"
@@ -227,7 +237,7 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
                                                             style={{ display: 'none' }}
                                                         />
                                                         <CheckCircle size={18} />
-                                                        <span>{t('ok')}</span>
+                                                        <span>✓</span>
                                                     </label>
 
                                                     <label className={`status-btn ${itemState.status === 'NOT OK' ? 'active-not-ok' : ''}`}>
@@ -240,7 +250,19 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
                                                             style={{ display: 'none' }}
                                                         />
                                                         <AlertCircle size={18} />
-                                                        <span>{t('notOk')}</span>
+                                                        <span>✗</span>
+                                                    </label>
+
+                                                    <label className={`status-btn ${itemState.status === 'NA' ? 'active-na' : ''}`}>
+                                                        <input
+                                                            type="radio"
+                                                            name={`status-${item.id}`}
+                                                            value="NA"
+                                                            checked={itemState.status === 'NA'}
+                                                            onChange={() => handleStatusChange(item.id, "NA")}
+                                                            style={{ display: 'none' }}
+                                                        />
+                                                        <span>N/A</span>
                                                     </label>
                                                 </div>
                                             </td>
@@ -261,15 +283,52 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
                 </div>
             ))}
 
+            {/* Signatures Section */}
             <div className="card" style={{ marginTop: '30px' }}>
-                <h3 style={{ marginBottom: '15px' }}>{t('signature')}</h3>
-                <SignaturePad onEnd={setSignature} />
-                <div style={{ marginTop: '10px', textAlign: 'right', fontSize: '0.9rem' }}>
-                    {signature ? (
-                        <span style={{ color: 'green', fontWeight: 'bold' }}>✅ {t('signatureCap')}</span>
-                    ) : (
-                        <span style={{ color: 'red' }}>❌ {t('signatureReq')}</span>
-                    )}
+                <h3 style={{ marginBottom: '20px', color: '#0f3460' }}>{t('signature')}</h3>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+                    {/* Fork Lift Operator */}
+                    <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '20px' }}>
+                        <h4 style={{ marginBottom: '15px', color: '#333' }}>{lt('opSig')}</h4>
+                        <div style={{ marginBottom: '10px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#666' }}>{lt('idNumber')}</label>
+                            <input
+                                type="text"
+                                value={idNumber}
+                                onChange={(e) => setIdNumber(e.target.value)}
+                                placeholder="Enter ID Number"
+                                style={{
+                                    width: '100%',
+                                    padding: '10px',
+                                    borderRadius: '4px',
+                                    border: '1px solid #ddd',
+                                    fontSize: '1rem'
+                                }}
+                            />
+                        </div>
+                        <SignaturePad onEnd={setOperatorSignature} />
+                        <div style={{ marginTop: '10px', textAlign: 'right', fontSize: '0.9rem' }}>
+                            {operatorSignature ? (
+                                <span style={{ color: 'green', fontWeight: 'bold' }}>✅ {t('signatureCap')}</span>
+                            ) : (
+                                <span style={{ color: 'red' }}>❌ {t('signatureReq')}</span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* TVS Supervisor (Optional) */}
+                    <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '20px' }}>
+                        <h4 style={{ marginBottom: '15px', color: '#333' }}>{lt('supSig')} <span style={{ color: '#999', fontWeight: 'normal', fontSize: '0.85rem' }}>{lt('optional')}</span></h4>
+                        <SignaturePad onEnd={setSupervisorSignature} />
+                        <div style={{ marginTop: '10px', textAlign: 'right', fontSize: '0.9rem' }}>
+                            {supervisorSignature ? (
+                                <span style={{ color: 'green', fontWeight: 'bold' }}>✅ {t('signatureCap')}</span>
+                            ) : (
+                                <span style={{ color: '#999' }}>⬜ Optional</span>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -277,7 +336,13 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
                 <button
                     type="submit"
                     className="btn btn-primary"
-                    style={{ fontSize: '1.2rem', padding: '15px 30px', minWidth: '300px' }}
+                    style={{
+                        fontSize: '1.2rem',
+                        padding: '15px 30px',
+                        minWidth: '300px',
+                        background: 'linear-gradient(135deg, #0f3460 0%, #16213e 100%)',
+                        border: 'none'
+                    }}
                     disabled={loading}
                 >
                     {loading ? t('submitting') : t('submit')}
@@ -289,7 +354,7 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
                     display: flex;
                     align-items: center;
                     gap: 6px;
-                    padding: 8px 12px;
+                    padding: 8px 16px;
                     border: 1px solid #ddd;
                     border-radius: 20px;
                     cursor: pointer;
@@ -297,7 +362,6 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
                     transition: all 0.2s;
                     font-weight: 500;
                     user-select: none;
-                    white-space: nowrap;
                 }
                 .status-btn:hover {
                     background: #f8f9fa;
@@ -312,9 +376,14 @@ const ChecklistForm = ({ onSubmit, initialData }) => {
                     border-color: #dc3545 !important;
                     color: #721c24 !important;
                 }
+                .active-na {
+                    background: #e2e3e5 !important;
+                    border-color: #6c757d !important;
+                    color: #383d41 !important;
+                }
             `}</style>
         </form>
     );
 };
 
-export default ChecklistForm;
+export default ForkliftChecklistForm;

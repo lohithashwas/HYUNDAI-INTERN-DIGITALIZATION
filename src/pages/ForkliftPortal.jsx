@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import ChecklistForm from '../components/ChecklistForm';
+import ForkliftChecklistForm from '../components/ForkliftChecklistForm';
 import { api } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-const SattvaPortal = () => {
+const ForkliftPortal = () => {
     const { t, language } = useLanguage();
     const navigate = useNavigate();
     const [hasSubmitted, setHasSubmitted] = useState(false);
 
-    // Check if checklist defined for today
     const getTodayStr = () => {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     };
 
     const checkStatus = async () => {
-        const existing = await api.getTodaySubmission();
+        const existing = await api.getTodayForkliftSubmission();
         if (existing) {
             setHasSubmitted(true);
         }
@@ -28,70 +27,71 @@ const SattvaPortal = () => {
     }, []);
 
     const handleSubmit = async (data) => {
-        // Data contains items and signature
         const payload = {
             ...data,
             date: getTodayStr(),
             timestamp: new Date().toISOString(),
-            operatorName: 'Sattva Operator', // Default for now, or dynamic if we add input
-            portalType: 'sattva'
+            portalType: 'forklift',
+            operatorName: 'Forklift Operator' // Mostly specific ID is in data.idNumber
         };
-
-        await api.submitChecklist(payload);
+        await api.submitForkliftChecklist(payload);
         setHasSubmitted(true);
     };
 
     const localT = {
         en: {
+            portalTitle: "Forklift Portal",
+            subTitle: "Daily Checklist for Diesel Forklift",
+            back: "Back to Home",
             shop: "Shop Code",
-            contract: "Contract Code",
-            portalTitle: "Sattva Portal",
-            back: "Back to Home"
+            contract: "Contract Code"
         },
         ta: {
+            portalTitle: "ஃபோர்க்லிஃப்ட் போர்டல்",
+            subTitle: "டீசல் ஃபோர்க்லிஃப்ட் பட்டியல்",
+            back: "முகப்புக்கு திரும்பு",
             shop: "கடை எண்",
-            contract: "ஒப்பந்த எண்",
-            portalTitle: "சத்வா போர்டல்",
-            back: "முகப்புக்கு திரும்பு"
+            contract: "ஒப்பந்த எண்"
         },
         hi: {
+            portalTitle: "फोर्कलिफ्ट पोर्टल",
+            subTitle: "डीजल फोर्कलिफ्ट चेकलिस्ट",
+            back: "होम पर वापस जाएँ",
             shop: "शॉप कोड",
-            contract: "अनुबंध कोड",
-            portalTitle: "सत्व पोर्टल",
-            back: "होम पर वापस जाएँ"
+            contract: "अनुबंध कोड"
         }
     };
     const lt = (key) => localT[language]?.[key] || localT['en'][key];
 
     return (
-        <div style={{ background: '#f4f7f6', minHeight: '100vh', padding: '20px' }}>
-            <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ background: '#fcfcfc', minHeight: '100vh', padding: '20px' }}>
+            <div className="container" style={{ maxWidth: '900px', margin: '0 auto' }}>
 
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
                     <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', color: '#666', fontSize: '1rem' }}>
                         <ArrowLeft size={20} /> {lt('back')}
                     </button>
-                    <div style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#002c5f' }}>
+                    <div style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#e94560' }}>
                         {new Date().toDateString()}
                     </div>
                 </div>
 
-                <div className="card" style={{ marginBottom: '20px', borderLeft: '5px solid #002c5f' }}>
+                <div className="card" style={{ marginBottom: '20px', borderLeft: '5px solid #e94560', background: 'white' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                         <div>
-                            <h1 style={{ margin: 0, color: '#002c5f', fontSize: '1.8rem' }}>{lt('portalTitle')}</h1>
-                            <p style={{ margin: '5px 0 0', color: '#666' }}>Hyundai Construction Equipment</p>
+                            <h1 style={{ margin: 0, color: '#e94560', fontSize: '1.8rem' }}>{lt('portalTitle')}</h1>
+                            <p style={{ margin: '5px 0 0', color: '#666' }}>TVS • {lt('subTitle')}</p>
                         </div>
                         <div style={{ textAlign: 'right', fontSize: '0.9rem', color: '#555' }}>
-                            <div><strong>{lt('shop')}:</strong> HMI</div>
-                            <div><strong>{lt('contract')}:</strong> C1Y</div>
+                            <div><strong>{lt('shop')}:</strong> C1Y</div>
+                            <div><strong>{lt('contract')}:</strong> TV65C3</div>
                         </div>
                     </div>
                 </div>
 
                 {!hasSubmitted ? (
-                    <ChecklistForm onSubmit={handleSubmit} />
+                    <ForkliftChecklistForm onSubmit={handleSubmit} />
                 ) : (
                     <div className="card" style={{ textAlign: 'center', padding: '60px 20px' }}>
                         <div style={{ marginBottom: '20px', color: 'green' }}>
@@ -104,10 +104,9 @@ const SattvaPortal = () => {
                         <button className="btn btn-primary" onClick={() => navigate('/')}>{lt('back')}</button>
                     </div>
                 )}
-
             </div>
         </div>
     );
 };
 
-export default SattvaPortal;
+export default ForkliftPortal;

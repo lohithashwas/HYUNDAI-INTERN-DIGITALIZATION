@@ -55,5 +55,54 @@ export const api = {
     // Given the scale of an intern project, downloading all is acceptable for now.
     const all = await this.getChecklists();
     return all.find(item => item.date === today);
+  },
+
+  // --- Forklift Specific API Methods ---
+
+  async getForkliftChecklists() {
+    try {
+      const response = await fetch(`${BASE_URL}/forklift_checklists.json${getAuthParam()}`);
+      if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+      const data = await response.json();
+      return data ? Object.entries(data).map(([key, value]) => ({ firebaseId: key, ...value })) : [];
+    } catch (error) {
+      console.error("Fetch Forklift Checklists Error:", error);
+      return [];
+    }
+  },
+
+  async submitForkliftChecklist(data) {
+    try {
+      // POST to append to list
+      const response = await fetch(`${BASE_URL}/forklift_checklists.json${getAuthParam()}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error(`Submission Error: ${response.statusText}`);
+      return await response.json();
+    } catch (error) {
+      console.error("Forklift Submit Error:", error);
+      throw error;
+    }
+  },
+
+  async deleteForkliftChecklist(firebaseId) {
+    try {
+      const response = await fetch(`${BASE_URL}/forklift_checklists/${firebaseId}.json${getAuthParam()}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error(`Delete Error: ${response.statusText}`);
+      return true;
+    } catch (error) {
+      console.error("Forklift Delete Error:", error);
+      throw error;
+    }
+  },
+
+  async getTodayForkliftSubmission() {
+    const today = getTodayStr();
+    const all = await this.getForkliftChecklists();
+    return all.find(item => item.date === today);
   }
 };
