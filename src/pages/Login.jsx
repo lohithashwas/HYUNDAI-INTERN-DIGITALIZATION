@@ -46,10 +46,11 @@ const Login = () => {
             justifyContent: 'center',
             alignItems: 'center',
             background: 'linear-gradient(135deg, #f4f7f6 0%, #e0e4e6 100%)',
-            position: 'relative'
+            position: 'relative',
+            paddingTop: '80px' // Add space for potential static header
         }}>
 
-            <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div className="lang-container">
                 <Globe size={20} color="#002c5f" />
                 <LangBtn code="en" label="English" />
                 <LangBtn code="ta" label="தமிழ்" />
@@ -58,7 +59,7 @@ const Login = () => {
 
             {!isAdminMode ? (
                 <>
-                    <div style={{ textAlign: 'center', marginBottom: '50px' }}>
+                    <div className="logo-container" style={{ textAlign: 'center', marginBottom: '50px' }}>
                         <h1 style={{ fontSize: '3.5rem', marginBottom: '10px', letterSpacing: '-1px' }}>
                             <span style={{ color: '#002c5f' }}>HYUNDAI</span>
                         </h1>
