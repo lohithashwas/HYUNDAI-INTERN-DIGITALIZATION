@@ -3,6 +3,16 @@ import SignatureCanvas from 'react-signature-canvas';
 
 const SignaturePad = ({ onEnd }) => {
     const sigCanvas = useRef({});
+    const [width, setWidth] = useState(window.innerWidth > 550 ? 500 : window.innerWidth - 60);
+
+    // Update width on resize
+    React.useEffect(() => {
+        const handleResize = () => {
+            setWidth(window.innerWidth > 550 ? 500 : window.innerWidth - 60);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const clear = () => {
         sigCanvas.current.clear();
@@ -13,23 +23,16 @@ const SignaturePad = ({ onEnd }) => {
         const canvas = sigCanvas.current;
         if (!canvas) return;
 
-        // Try to get trimmed data, fallback to normal data if trimmed is empty/issue
         try {
             if (canvas.isEmpty()) {
-                // If explicitly empty, user cleared it or hasn't drawn.
-                // But user claims they signed, so maybe isEmpty is wrong?
-                // We will still try to get data if they triggered onEnd.
-                // However, usually isEmpty is reliable. 
-                // Let's rely on dataURL length check instead to be sure.
                 const data = canvas.toDataURL('image/png');
-                onEnd(data); // Send whatever we have
+                onEnd(data);
             } else {
                 const data = canvas.getTrimmedCanvas().toDataURL('image/png');
                 onEnd(data);
             }
         } catch (e) {
             console.error("Signature capture error", e);
-            // Fallback
             if (canvas.getCanvas()) {
                 onEnd(canvas.getCanvas().toDataURL('image/png'));
             }
@@ -39,15 +42,16 @@ const SignaturePad = ({ onEnd }) => {
     return (
         <div className="signature-container" style={{ border: '2px solid #ccc', borderRadius: '8px', padding: '10px', background: 'white' }}>
             <p style={{ marginBottom: '5px', fontWeight: 'bold' }}>Operator Signature</p>
-            <div style={{ border: '1px solid #ddd', height: '150px' }}>
+            <div style={{ border: '1px solid #ddd', height: '150px', display: 'flex', justifyContent: 'center', background: '#f9f9f9' }}>
                 <SignatureCanvas
                     ref={sigCanvas}
                     penColor="black"
-                    canvasProps={{ width: 500, height: 150, className: 'sigCanvas' }}
+                    canvasProps={{ width: width, height: 150, className: 'sigCanvas' }}
                     onEnd={handleEnd}
                 />
             </div>
-            <div style={{ marginTop: '10px' }}>
+            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <small style={{ color: '#999' }}>Sign above</small>
                 <button type="button" onClick={clear} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '5px 10px' }}>
                     Clear Signature
                 </button>

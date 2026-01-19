@@ -24,7 +24,12 @@ body {
   box-sizing: border-box;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   font-weight: 600;
   color: var(--primary);
@@ -37,7 +42,9 @@ button {
   transition: all 0.2s ease;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -103,4 +110,91 @@ input, select, textarea {
 .grid {
   display: grid;
   gap: 20px;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+
+  /* Header adjustments */
+  .header {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .header h1 {
+    font-size: 1.25rem;
+  }
+
+  /* Login Page Specifics */
+  .login-option {
+    width: 100% !important;
+    /* Override inline styles */
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  /* Checklist Table to Cards Transformation */
+  .checklist-form table,
+  .checklist-form tbody,
+  .checklist-form tr,
+  .checklist-form td {
+    display: block;
+    width: 100%;
+  }
+
+  .checklist-form thead {
+    display: none;
+    /* Hide header row on mobile */
+  }
+
+  .checklist-form tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background: #fff;
+    padding: 10px;
+  }
+
+  .checklist-form td {
+    padding: 8px 5px !important;
+    /* Compact padding */
+    text-align: left !important;
+    border-bottom: none !important;
+  }
+
+  .checklist-form td:first-child {
+    font-weight: 600;
+    border-bottom: 1px solid #f0f0f0 !important;
+    margin-bottom: 8px;
+    padding-bottom: 8px !important;
+  }
+
+  /* Improve toggle buttons on mobile */
+  .status-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 10px !important;
+  }
+
+  .status-btn input {
+    /* Larger touch target implies entire label is clickable */
+  }
+
+  /* Signature Pad */
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Buttons */
+  .btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+  }
 }
