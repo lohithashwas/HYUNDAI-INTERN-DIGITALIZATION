@@ -52,6 +52,17 @@ const AnalyticsDashboard = ({ checklists }) => {
         };
     });
 
+    // --- 4. Storage Estamation (Based on Current Data) ---
+    // Calculate rough size of the JSON data
+    const jsonString = JSON.stringify(checklists);
+    const totalBytes = new TextEncoder().encode(jsonString).length;
+
+    // Limits: Firebase Spark Plan (Free) is typically 1GB for Realtime Database
+    const STORAGE_LIMIT_BYTES = 1024 * 1024 * 1024; // 1 GB
+    const usedMB = (totalBytes / (1024 * 1024)).toFixed(2);
+    const limitMB = (STORAGE_LIMIT_BYTES / (1024 * 1024)).toFixed(0); // 1024 MB
+    const usagePercent = Math.min(((totalBytes / STORAGE_LIMIT_BYTES) * 100), 100).toFixed(2);
+
     return (
         <div style={{ marginBottom: '30px', animation: 'fadeIn 0.5s ease-in' }}>
             <h2 style={{ marginBottom: '20px', color: '#333' }}>📊 {t('analytics') || "Performance Analytics"}</h2>
@@ -120,6 +131,46 @@ const AnalyticsDashboard = ({ checklists }) => {
                         <div style={{ fontSize: '0.9rem', color: '#666' }}>Equipment Health</div>
                         <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00C49F' }}>
                             {totalItems > 0 ? ((okItems / totalItems) * 100).toFixed(1) : 0}%
+                        </div>
+                    </div>
+                </div>
+
+                {/* Card 4: Storage Limit Dashboard */}
+                <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <h3 style={{ fontSize: '1.1rem' }}>🔥 Database Storage Usage</h3>
+
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                            <span style={{ fontSize: '2rem', fontWeight: 'bold', color: usagePercent > 80 ? '#dc3545' : '#002c5f' }}>
+                                {usedMB} <span style={{ fontSize: '1rem', fontWeight: 'normal', color: '#666' }}>MB</span>
+                            </span>
+                            <span style={{ color: '#666' }}>of {limitMB} MB Limit</span>
+                        </div>
+
+                        {/* Progress Bar Container */}
+                        <div style={{
+                            height: '20px',
+                            background: '#e9ecef',
+                            borderRadius: '10px',
+                            overflow: 'hidden',
+                            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
+                        }}>
+                            {/* Progress Bar Fill */}
+                            <div style={{
+                                width: `${usagePercent}%`,
+                                height: '100%',
+                                background: usagePercent > 90 ? '#dc3545' : (usagePercent > 70 ? '#ffc107' : 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)'),
+                                transition: 'width 1s ease-in-out',
+                                borderRadius: '10px'
+                            }}></div>
+                        </div>
+
+                        <div style={{ marginTop: '10px', textAlign: 'right', fontSize: '0.9rem', fontWeight: 'bold', color: '#666' }}>
+                            {usagePercent}% Used
+                        </div>
+
+                        <div style={{ marginTop: '20px', padding: '10px', background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: '4px', fontSize: '0.85rem', color: '#856404' }}>
+                            <strong>Note:</strong> Estimates based on fetched text data. Includes Base64 audio/images.
                         </div>
                     </div>
                 </div>
